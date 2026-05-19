@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "FORGE",
+    "slug": "forge-ai-trainer",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#08090A"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.nomogodo.forge",
+      "infoPlist": {
+        "NSCameraUsageDescription": "FORGE necesita acceso a la cámara para analizar tu técnica en tiempo real.",
+        "NSMicrophoneUsageDescription": "FORGE necesita el micrófono para el análisis de entrenamiento."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#08090A"
+      },
+      "package": "com.nomogodo.forge",
+      "permissions": ["CAMERA", "RECORD_AUDIO"]
+    },
+    "plugins": [
+      ["expo-camera", { "cameraPermission": "FORGE necesita la cámara para analizar tu técnica de entrenamiento." }],
+      "expo-font",
+      "expo-speech"
+    ],
+    "extra": {
+      "anthropicApiKey": "ANTHROPIC_API_KEY"
+    }
+  }
+}
