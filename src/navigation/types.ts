@@ -1,11 +1,40 @@
-import { NavigatorScreenParams } from '@react-navigation/native';
-
 export type RootStackParamList = {
-  Onboarding: undefined;
-  Main: NavigatorScreenParams<TabParamList>;
+  Splash: undefined;
+  OnboardingBasics: undefined;
+  OnboardingFitness: undefined;
+  OnboardingEquipment: undefined;
+  OnboardingInjuries: undefined;
+  OnboardingDietary: undefined;
+  OnboardingPaywall: undefined;
+  Main: undefined;
+  WorkoutHub: undefined;
+  RoutinePreview: undefined;
   Workout: undefined;
+  RestTimer: undefined;
+  ExerciseReplacer: undefined;
+  WorkoutSummary: undefined;
   ExerciseDetail: { exerciseId: string };
+  SkillTree: undefined;
   Chat: undefined;
+  FormChecker: undefined;
+  AudioCoach: undefined;
+  NutritionDashboard: undefined;
+  MealDetail: { mealId: string };
+  MealSwapper: undefined;
+  FoodScanner: undefined;
+  GroceryList: undefined;
+  ProgressHub: undefined;
+  BodyPhotos: undefined;
+  Biometrics: undefined;
+  PRLog: undefined;
+  UserProfile: undefined;
+  Leaderboard: undefined;
+  Settings: undefined;
+  RankHub: undefined;
+  League: undefined;
+  HeadToHead: undefined;
+  SeasonPass: undefined;
+  RankTier: { tier: string };
 };
 
 export type TabParamList = {
