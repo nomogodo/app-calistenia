@@ -46,7 +46,7 @@ export default function ExerciseDetailScreen() {
   const route = useRoute<Route>();
   const theme = useTheme();
   const [playing, setPlaying] = useState(false);
-  const exercise = EXERCISES.find((e) => e.id === route.params?.exerciseId) ?? EXERCISES[1];
+  const exercise = EXERCISES.find((e) => e.id === route.params?.exerciseId) ?? EXERCISES[0];
   const diffMap: Record<string, string> = { beginner: 'PRINCIPIANTE', intermediate: 'INTERMEDIO', advanced: 'AVANZADO', elite: 'ÉLITE' };
 
   return (
@@ -154,10 +154,15 @@ export default function ExerciseDetailScreen() {
             </TouchableOpacity>
             <TouchableOpacity
               style={[s.trainBtn, { backgroundColor: theme.accent }]}
-              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); navigation.navigate('Workout' as any); }}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                navigation.navigate('ActiveWorkout' as any);
+              }}
               activeOpacity={0.85}
             >
-              <Svg width={18} height={18} viewBox="0 0 24 24" fill={theme.accentInk}><Path d="M5 3l14 9-14 9V3z" fill={theme.accentInk}/></Svg>
+              <Svg width={18} height={18} viewBox="0 0 24 24" fill={theme.accentInk}>
+                <Path d="M5 3l14 9-14 9V3z" fill={theme.accentInk}/>
+              </Svg>
               <Text style={[s.trainTxt, { color: theme.accentInk, fontFamily: FONTS.bold }]}>ENTRENAR AHORA</Text>
             </TouchableOpacity>
           </View>

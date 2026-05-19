@@ -3,7 +3,6 @@ import {
   View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as Haptics from 'expo-haptics';
 import { Svg, Path, Circle, Line } from 'react-native-svg';
 import { useAppStore } from '../store/useAppStore';
@@ -32,27 +31,18 @@ function WireframeStage({ accentColor }: { accentColor: string }) {
         <Line key={`h${i}`} x1={0} y1={i * (SH / 19)} x2={SW} y2={i * (SH / 19)}
           stroke="rgba(255,255,255,0.04)" strokeWidth={1} />
       ))}
-      {/* Head */}
       <Circle cx={SW / 2} cy={160} r={22} stroke={accentColor} strokeWidth={1.5} fill="none" />
-      {/* Spine */}
       <Line x1={SW/2} y1={182} x2={SW/2} y2={340} stroke={accentColor} strokeWidth={1.5} strokeOpacity={0.6}/>
-      {/* Shoulders */}
       <Line x1={SW/2-55} y1={210} x2={SW/2+55} y2={210} stroke={accentColor} strokeWidth={1.5} strokeOpacity={0.6}/>
-      {/* Left arm */}
       <Line x1={SW/2-55} y1={210} x2={SW/2-70} y2={290} stroke={accentColor} strokeWidth={1.5} strokeOpacity={0.6}/>
       <Line x1={SW/2-70} y1={290} x2={SW/2-60} y2={360} stroke={accentColor} strokeWidth={1.5} strokeOpacity={0.6}/>
-      {/* Right arm */}
       <Line x1={SW/2+55} y1={210} x2={SW/2+70} y2={290} stroke={accentColor} strokeWidth={1.5} strokeOpacity={0.6}/>
       <Line x1={SW/2+70} y1={290} x2={SW/2+60} y2={360} stroke={accentColor} strokeWidth={1.5} strokeOpacity={0.6}/>
-      {/* Hips */}
       <Line x1={SW/2-40} y1={340} x2={SW/2+40} y2={340} stroke={accentColor} strokeWidth={1.5} strokeOpacity={0.6}/>
-      {/* Left leg */}
       <Line x1={SW/2-40} y1={340} x2={SW/2-65} y2={460} stroke={accentColor} strokeWidth={1.5} strokeOpacity={0.6}/>
       <Line x1={SW/2-65} y1={460} x2={SW/2-50} y2={570} stroke={accentColor} strokeWidth={1.5} strokeOpacity={0.6}/>
-      {/* Right leg */}
       <Line x1={SW/2+40} y1={340} x2={SW/2+65} y2={460} stroke={accentColor} strokeWidth={1.5} strokeOpacity={0.6}/>
       <Line x1={SW/2+65} y1={460} x2={SW/2+50} y2={570} stroke={accentColor} strokeWidth={1.5} strokeOpacity={0.6}/>
-      {/* Joint markers */}
       {[
         [SW/2, 160], [SW/2-55, 210], [SW/2+55, 210],
         [SW/2-70, 290], [SW/2+70, 290], [SW/2-40, 340], [SW/2+40, 340],
@@ -67,15 +57,17 @@ function WireframeStage({ accentColor }: { accentColor: string }) {
 export default function WorkoutScreen() {
   const navigation = useNavigation();
   const theme = useTheme();
-  const { activeWorkout, todayWorkout, startWorkout, completeSet, nextExercise, prevExercise, tickTimer } = useAppStore();
-  const [permission, requestPermission] = useCameraPermissions();
+  const {
+    activeWorkout, todayWorkout, startWorkout, completeSet, nextExercise, prevExercise, tickTimer,
+  } = useAppStore();
   const [coachMsgIdx, setCoachMsgIdx] = useState(0);
   const [isTalking, setIsTalking] = useState(false);
-  const [showCamera, setShowCamera] = useState(false);
   const waveAnim = useRef(Array.from({ length: 7 }, () => new Animated.Value(4))).current;
   const recAnim = useRef(new Animated.Value(1)).current;
 
-  useEffect(() => { if (!activeWorkout.isActive) startWorkout(); }, []);
+  useEffect(() => {
+    if (!activeWorkout.isActive) startWorkout();
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => tickTimer(), 1000);
@@ -83,12 +75,14 @@ export default function WorkoutScreen() {
   }, []);
 
   useEffect(() => {
-    Animated.loop(
+    const loop = Animated.loop(
       Animated.sequence([
         Animated.timing(recAnim, { toValue: 1.5, duration: 700, useNativeDriver: true }),
         Animated.timing(recAnim, { toValue: 1, duration: 700, useNativeDriver: true }),
       ])
-    ).start();
+    );
+    loop.start();
+    return () => loop.stop();
   }, []);
 
   useEffect(() => {
@@ -117,26 +111,25 @@ export default function WorkoutScreen() {
   const handleCompleteSet = () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     completeSet();
-    if (!activeWorkout.isActive) navigation.goBack();
   };
 
   const currentEx = todayWorkout.exercises[activeWorkout.currentExerciseIndex];
   const elapsedMin = Math.floor(activeWorkout.elapsedSeconds / 60);
   const elapsedSec = activeWorkout.elapsedSeconds % 60;
-  const timeStr = `${String(elapsedMin).padStart(2,'0')}:${String(elapsedSec).padStart(2,'0')}`;
+  const timeStr = `${String(elapsedMin).padStart(2, '0')}:${String(elapsedSec).padStart(2, '0')}`;
   const coachMsg = COACH_MSGS[coachMsgIdx % COACH_MSGS.length];
 
   return (
     <View style={[s.container, { backgroundColor: '#08090A' }]}>
-      {showCamera && permission?.granted
-        ? <CameraView style={StyleSheet.absoluteFill} facing="front" />
-        : null}
       <WireframeStage accentColor={theme.accent} />
       <View style={s.overlay} />
 
       {/* Top bar */}
       <View style={s.topBar}>
-        <TouchableOpacity style={[s.circleBtn, { backgroundColor: 'rgba(0,0,0,0.45)' }]} onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          style={[s.circleBtn, { backgroundColor: 'rgba(0,0,0,0.45)' }]}
+          onPress={() => navigation.goBack()}
+        >
           <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
             <Path d="M18 6L6 18M6 6l12 12" stroke={theme.fg} strokeWidth={1.8} strokeLinecap="round"/>
           </Svg>
@@ -146,7 +139,7 @@ export default function WorkoutScreen() {
             EJERCICIO {activeWorkout.currentExerciseIndex + 1} / {todayWorkout.exercises.length}
           </Text>
           <Text style={[s.exName, { color: theme.fg, fontFamily: FONTS.semiBold }]}>
-            {currentEx?.exercise.name ?? '—'}
+            {currentEx?.name ?? '—'}
           </Text>
         </View>
         <TouchableOpacity
@@ -154,8 +147,7 @@ export default function WorkoutScreen() {
           onPress={handleCoachSpeak}
         >
           <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-            <Path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5" stroke={theme.accent} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"/>
-            <Path d="M17.5 3a2.121 2.121 0 013 3L12 14.5l-4 1 1-4L17.5 3z" stroke={theme.accent} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"/>
+            <Path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zM19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8" stroke={theme.accent} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"/>
           </Svg>
         </TouchableOpacity>
       </View>
@@ -174,10 +166,10 @@ export default function WorkoutScreen() {
           <Text style={[s.eyebrow, { color: theme.muted, fontFamily: FONTS.mono }]}>REP</Text>
           <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
             <Text style={[s.repBig, { color: theme.accent, fontFamily: FONTS.display }]}>
-              {String(activeWorkout.currentReps).padStart(2, '0')}
+              {String(activeWorkout.repCount).padStart(2, '0')}
             </Text>
             <Text style={[s.repTotal, { color: theme.dim, fontFamily: FONTS.display }]}>
-              /{currentEx?.reps ?? '—'}
+              /{currentEx?.repsMax ?? '—'}
             </Text>
           </View>
         </View>
@@ -187,12 +179,12 @@ export default function WorkoutScreen() {
             {activeWorkout.currentSet}/{currentEx?.sets ?? '—'}
           </Text>
           <Text style={[s.weightTxt, { color: theme.accent, fontFamily: FONTS.mono }]}>
-            {currentEx?.weight ?? '—'}
+            {currentEx?.weight ? `${currentEx.weight}${currentEx.weightUnit}` : currentEx?.weightUnit ?? '—'}
           </Text>
         </View>
       </View>
 
-      {/* Angle tags */}
+      {/* Form tags */}
       <View style={[s.angleTag, s.angleLeft, { borderColor: theme.accent, backgroundColor: 'rgba(0,0,0,0.6)' }]}>
         <Text style={[s.angleTxt, { color: theme.accent, fontFamily: FONTS.mono }]}>92° RODILLA ✓</Text>
       </View>
@@ -219,11 +211,7 @@ export default function WorkoutScreen() {
             )}
           </View>
           <Text style={[s.coachMsg, { color: theme.fg2, fontFamily: FONTS.medium }]}>
-            {coachMsg.split('. ').map((sentence, i, arr) =>
-              i === arr.length - 1
-                ? <Text key={i} style={{ color: theme.accent, fontFamily: FONTS.semiBold }}>{sentence}</Text>
-                : <Text key={i}>{sentence}. </Text>
-            )}
+            {coachMsg}
           </Text>
         </View>
       </View>
@@ -233,9 +221,9 @@ export default function WorkoutScreen() {
         <View style={s.scoreRow}>
           {[
             { label: 'FORMA', value: `${activeWorkout.formScore}`, color: theme.accent },
-            { label: 'TEMPO', value: activeWorkout.tempo, color: theme.fg },
-            { label: 'ROM', value: `${activeWorkout.rom}%`, color: theme.accent },
-            { label: 'DESCANSO', value: '01:30', color: theme.fg },
+            { label: 'TEMPO', value: '3-1-2', color: theme.fg },
+            { label: 'ROM', value: '92%', color: theme.accent },
+            { label: 'DESCANSO', value: `${currentEx?.restSeconds ?? 90}s`, color: theme.fg },
           ].map((item, i) => (
             <View key={i} style={[s.scoreCard, { backgroundColor: 'rgba(0,0,0,0.5)' }]}>
               <Text style={[s.eyebrow, { color: theme.muted, fontFamily: FONTS.mono }]}>{item.label}</Text>
@@ -244,20 +232,28 @@ export default function WorkoutScreen() {
           ))}
         </View>
         <View style={s.actionRow}>
-          <TouchableOpacity style={[s.navBtn, { backgroundColor: theme.surface2 }]}
-            onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); prevExercise(); }}>
+          <TouchableOpacity
+            style={[s.navBtn, { backgroundColor: theme.surface2 }]}
+            onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); prevExercise(); }}
+          >
             <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
               <Path d="M15 18l-6-6 6-6" stroke={theme.fg} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"/>
             </Svg>
           </TouchableOpacity>
-          <TouchableOpacity style={[s.completeBtn, { backgroundColor: theme.accent }]} onPress={handleCompleteSet} activeOpacity={0.85}>
+          <TouchableOpacity
+            style={[s.completeBtn, { backgroundColor: theme.accent }]}
+            onPress={handleCompleteSet}
+            activeOpacity={0.85}
+          >
             <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
               <Path d="M20 6L9 17l-5-5" stroke={theme.accentInk} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round"/>
             </Svg>
             <Text style={[s.completeTxt, { color: theme.accentInk, fontFamily: FONTS.bold }]}>COMPLETAR SERIE</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[s.navBtn, { backgroundColor: theme.surface2 }]}
-            onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); nextExercise(); }}>
+          <TouchableOpacity
+            style={[s.navBtn, { backgroundColor: theme.surface2 }]}
+            onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); nextExercise(); }}
+          >
             <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
               <Path d="M9 18l6-6-6-6" stroke={theme.fg} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"/>
             </Svg>

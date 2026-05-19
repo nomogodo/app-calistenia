@@ -8,7 +8,12 @@ import { SCREEN_PADDING } from '../constants/spacing';
 import { Palette } from '../types';
 import { PALETTES } from '../constants/colors';
 
-const PALETTE_LABELS: Record<Palette, string> = { lime: 'LIME', inferno: 'INFERNO', ice: 'ICE', bone: 'BONE' };
+const PALETTE_LABELS: Record<Palette, string> = {
+  lime: 'LIME', inferno: 'INFERNO', ice: 'ICE', bone: 'BONE',
+  volt: 'VOLT', blood: 'BLOOD', royal: 'ROYAL', mint: 'MINT',
+  sunset: 'SUNSET', forest: 'FOREST', carbon: 'CARBON', copper: 'COPPER',
+};
+
 const GOAL_LABELS: Record<string, string> = {
   muscle: 'Ganar músculo', strength: 'Fuerza pura', fat: 'Quemar grasa',
   calisthenics: 'Calistenia', athletic: 'Rendimiento atlético',
@@ -60,7 +65,11 @@ export default function ProfileScreen() {
             const pal = PALETTES[p];
             const isActive = palette === p;
             return (
-              <TouchableOpacity key={p} style={[s.palCard, { backgroundColor: pal.surface, borderColor: isActive ? pal.accent : pal.line, borderWidth: isActive ? 2 : 1 }]} onPress={() => setPalette(p)}>
+              <TouchableOpacity
+                key={p}
+                style={[s.palCard, { backgroundColor: pal.surface, borderColor: isActive ? pal.accent : pal.line, borderWidth: isActive ? 2 : 1 }]}
+                onPress={() => setPalette(p)}
+              >
                 <View style={[s.accentDot, { backgroundColor: pal.accent }]} />
                 <Text style={[s.palLabel, { color: pal.fg, fontFamily: FONTS.mono }]}>{PALETTE_LABELS[p]}</Text>
               </TouchableOpacity>
