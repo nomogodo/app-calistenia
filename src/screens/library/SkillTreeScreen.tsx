@@ -8,21 +8,17 @@ import { TYPOGRAPHY } from '../../constants/typography';
 const CATEGORIES = ['Calistenia', 'Fuerza', 'Movilidad', 'Resistencia'];
 
 const SKILLS = [
-  // Level 1 (foundation)
-  { id: 'pushup', t: 'Flexiones', l: 1, x: 50, y: 80, done: true, parents: [] },
-  { id: 'pullup', t: 'Dominadas', l: 1, x: 200, y: 80, done: true, parents: [] },
-  { id: 'squat', t: 'Sentadilla', l: 1, x: 350, y: 80, done: true, parents: [] },
-  // Level 2
-  { id: 'dip', t: 'Fondos', l: 2, x: 50, y: 190, done: true, parents: ['pushup'] },
-  { id: 'l-sit', t: 'L-Sit', l: 2, x: 150, y: 190, done: true, parents: ['pushup'] },
-  { id: 'mu-neg', t: 'Muscle-up Neg', l: 2, x: 250, y: 190, done: true, parents: ['pullup'] },
-  { id: 'pistol', t: 'Pistol Squat', l: 2, x: 350, y: 190, done: false, parents: ['squat'] },
-  // Level 3
-  { id: 'mu', t: 'Muscle-up', l: 3, x: 150, y: 300, done: false, parents: ['dip', 'mu-neg'] },
-  { id: 'fl-tuck', t: 'Front Lever Tuck', l: 3, x: 280, y: 300, done: false, parents: ['pullup'] },
-  // Level 4 (advanced)
-  { id: 'fl', t: 'Front Lever', l: 4, x: 200, y: 400, done: false, parents: ['mu', 'fl-tuck'] },
-  { id: 'planche-tuck', t: 'Planche Tuck', l: 4, x: 80, y: 400, done: false, parents: ['mu'] },
+  { id: 'pushup', t: 'Flexiones', l: 1, x: 15, y: 80, done: true, parents: [] as string[] },
+  { id: 'pullup', t: 'Dominadas', l: 1, x: 50, y: 80, done: true, parents: [] as string[] },
+  { id: 'squat', t: 'Sentadilla', l: 1, x: 85, y: 80, done: true, parents: [] as string[] },
+  { id: 'dip', t: 'Fondos', l: 2, x: 15, y: 190, done: true, parents: ['pushup'] },
+  { id: 'l-sit', t: 'L-Sit', l: 2, x: 35, y: 190, done: true, parents: ['pushup'] },
+  { id: 'mu-neg', t: 'MU Neg.', l: 2, x: 60, y: 190, done: true, parents: ['pullup'] },
+  { id: 'pistol', t: 'Pistol SQ', l: 2, x: 85, y: 190, done: false, parents: ['squat'] },
+  { id: 'mu', t: 'Muscle-up', l: 3, x: 35, y: 300, done: false, parents: ['dip', 'mu-neg'] },
+  { id: 'fl-tuck', t: 'FL Tuck', l: 3, x: 65, y: 300, done: false, parents: ['pullup'] },
+  { id: 'fl', t: 'Front Lever', l: 4, x: 50, y: 400, done: false, parents: ['mu', 'fl-tuck'] },
+  { id: 'planche', t: 'Planche Tk', l: 4, x: 20, y: 400, done: false, parents: ['mu'] },
 ];
 
 export function SkillTreeScreen({ navigation }: any) {
@@ -44,11 +40,13 @@ export function SkillTreeScreen({ navigation }: any) {
             alignItems: 'center', justifyContent: 'center',
           }}
         >
-          <Text style={{ color: colors.fg }}>←</Text>
+          <Text style={{ color: colors.fg }}>{'←'}</Text>
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
-          <Text style={[TYPOGRAPHY.eyebrow, { color: colors.muted }]}>BIBLIOTECA · HABILIDADES</Text>
-          <Text style={{ fontSize: 16, fontWeight: '700', marginTop: 2, color: colors.fg }}árbol de habilidades</Text>
+          <Text style={[TYPOGRAPHY.eyebrow, { color: colors.muted }]}>BIBLIOTECA {'·'} HABILIDADES</Text>
+          <Text style={{ fontSize: 16, fontWeight: '700', marginTop: 2, color: colors.fg }}>
+            {'Árbol de habilidades'}
+          </Text>
         </View>
       </View>
 
@@ -73,20 +71,20 @@ export function SkillTreeScreen({ navigation }: any) {
         ))}
       </ScrollView>
 
-      {/* Skill tree SVG */}
       <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-        <View style={{ height: 500, position: 'relative' }}>
+        {/* Skill tree SVG canvas */}
+        <View style={{ height: 500, marginHorizontal: SPACING.md, marginTop: SPACING.md, borderRadius: 16, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line, overflow: 'hidden' }}>
           <Svg width="100%" height={500}>
-            {/* Connection lines */}
-            {SKILLS.map((skill) =>
+            {/* Lines between nodes */}
+            {SKILLS.flatMap((skill) =>
               skill.parents.map((parentId) => {
                 const parent = SKILLS.find((s) => s.id === parentId);
                 if (!parent) return null;
                 return (
                   <Line
                     key={`${parentId}-${skill.id}`}
-                    x1={`${parent.x}%`} y1={parent.y + 18}
-                    x2={`${skill.x}%`} y2={skill.y - 18}
+                    x1={`${parent.x}%`} y1={parent.y + 22}
+                    x2={`${skill.x}%`} y2={skill.y - 22}
                     stroke={skill.done ? colors.accent : colors.line2}
                     strokeWidth={1.5}
                     strokeDasharray={skill.done ? undefined : '4 3'}
@@ -101,20 +99,21 @@ export function SkillTreeScreen({ navigation }: any) {
               <React.Fragment key={skill.id}>
                 <Circle
                   cx={`${skill.x}%`} cy={skill.y}
-                  r={18}
-                  fill={skill.done ? colors.accent : colors.surface}
-                  stroke={skill.done ? colors.accent : selected === skill.id ? colors.accent : colors.line2}
-                  strokeWidth={skill.done ? 0 : selected === skill.id ? 2 : 1.5}
+                  r={20}
+                  fill={skill.done ? colors.accent : colors.bg}
+                  stroke={selected === skill.id ? colors.accent : skill.done ? colors.accent : colors.line2}
+                  strokeWidth={selected === skill.id ? 2.5 : 1.5}
                   onPress={() => setSelected(skill.id === selected ? null : skill.id)}
                 />
                 <SvgText
-                  x={`${skill.x}%`} y={skill.y + 5}
+                  x={`${skill.x}%`} y={skill.y + 4}
                   textAnchor="middle"
-                  fontSize={10}
+                  fontSize={8}
                   fill={skill.done ? colors.accentInk : colors.fg2}
                   fontWeight="700"
+                  onPress={() => setSelected(skill.id === selected ? null : skill.id)}
                 >
-                  {skill.t.length > 6 ? skill.t.slice(0, 5) + '…' : skill.t}
+                  {skill.t.length > 8 ? skill.t.slice(0, 7) + '…' : skill.t}
                 </SvgText>
               </React.Fragment>
             ))}
@@ -122,14 +121,14 @@ export function SkillTreeScreen({ navigation }: any) {
         </View>
 
         {/* Legend */}
-        <View style={{ paddingHorizontal: SPACING.md, paddingBottom: SPACING.md }}>
+        <View style={{ paddingHorizontal: SPACING.md, paddingTop: SPACING.md, paddingBottom: SPACING.md }}>
           <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center', marginBottom: 16 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
               <View style={{ width: 14, height: 14, borderRadius: 99, backgroundColor: colors.accent }} />
               <Text style={{ fontSize: 11, color: colors.fg2 }}>Desbloqueado</Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <View style={{ width: 14, height: 14, borderRadius: 99, backgroundColor: colors.surface, borderWidth: 1.5, borderColor: colors.line2 }} />
+              <View style={{ width: 14, height: 14, borderRadius: 99, backgroundColor: colors.bg, borderWidth: 1.5, borderColor: colors.line2 }} />
               <Text style={{ fontSize: 11, color: colors.fg2 }}>Bloqueado</Text>
             </View>
           </View>
