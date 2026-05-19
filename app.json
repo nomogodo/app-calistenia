@@ -11,6 +11,11 @@
       "resizeMode": "contain",
       "backgroundColor": "#08090A"
     },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "backgroundColor": "#08090A"
+    },
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.nomogodo.forge",

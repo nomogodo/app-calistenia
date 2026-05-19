@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import {
@@ -28,9 +28,11 @@ export default function App() {
     'JetBrainsMono-SemiBold': JetBrainsMono_600SemiBold,
   });
 
-  const onLayoutRootView = useCallback(async () => {
+  // useEffect is more reliable than onLayout on web — the splash overlay
+  // can block DOM events, causing onLayout to never fire.
+  useEffect(() => {
     if (fontsLoaded || fontError) {
-      await SplashScreen.hideAsync();
+      SplashScreen.hideAsync().catch(() => {});
     }
   }, [fontsLoaded, fontError]);
 
@@ -38,7 +40,7 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <View style={{ flex: 1, backgroundColor: '#08090A' }} onLayout={onLayoutRootView}>
+      <View style={{ flex: 1, backgroundColor: '#08090A' }}>
         <StatusBar style="light" />
         <RootNavigator />
       </View>

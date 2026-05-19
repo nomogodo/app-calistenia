@@ -3,13 +3,11 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView } fr
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Svg, Path } from 'react-native-svg';
-import * as Haptics from 'expo-haptics';
 import { useAppStore } from '../store/useAppStore';
 import { useTheme } from '../hooks/useTheme';
 import { FONTS } from '../constants/typography';
 import { SCREEN_PADDING } from '../constants/spacing';
 import { RootStackParamList } from '../navigation/types';
-import { Meal } from '../types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -29,12 +27,7 @@ const pb = StyleSheet.create({
 export default function HomeScreen() {
   const navigation = useNavigation<Nav>();
   const theme = useTheme();
-  const { todayWorkout, mealsToday, dayMetrics, user } = useAppStore();
-
-  const handleStart = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    navigation.navigate('Workout');
-  };
+  const { todayWorkout, nutritionToday, dayMetrics, user } = useAppStore();
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: theme.bg }]}>
@@ -43,7 +36,7 @@ export default function HomeScreen() {
         {/* Header */}
         <View style={s.header}>
           <View style={{ flex: 1 }}>
-            <Text style={[s.eyebrow, { color: theme.muted, fontFamily: FONTS.mono }]}>MARTES · 19 MAY</Text>
+            <Text style={[s.eyebrow, { color: theme.muted, fontFamily: FONTS.mono }]}>LUNES · 19 MAY</Text>
             <Text style={[s.greeting, { color: theme.fg, fontFamily: FONTS.display }]}>{`Buenos días,\n${user.name}.`}</Text>
           </View>
           <View style={[s.notifBadge, { backgroundColor: theme.surface2 }]}>
@@ -62,8 +55,8 @@ export default function HomeScreen() {
             <Path d="M12 2l2.4 7.4H22l-6.4 4.6 2.4 7.4L12 17l-6 4.4 2.4-7.4L2 9.4h7.6L12 2z" stroke={theme.accent} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"/>
           </Svg>
           <Text style={[s.coachTxt, { color: theme.fg2, fontFamily: FONTS.medium }]}>
-            <Text style={{ color: theme.fg, fontFamily: FONTS.semiBold }}>Coach: </Text>
-            Tu sueño bajó un 12%. Adjusté el volumen de hoy.{' '}
+            <Text style={{ color: theme.fg, fontFamily: FONTS.semiBold }}>{'Coach: '}</Text>
+            {'Tu sueño bajó un 12%. Adjusté el volumen de hoy. '}
             <Text style={{ color: theme.accent }}>No me defraudes.</Text>
           </Text>
         </View>
@@ -76,33 +69,39 @@ export default function HomeScreen() {
               <Text style={[s.eyebrow, { color: theme.accent, fontFamily: FONTS.mono }]}>ENTRENAMIENTO DE HOY</Text>
             </View>
             <Text style={[s.eyebrow, { color: theme.muted, fontFamily: FONTS.mono }]}>
-              SEMANA {todayWorkout.week} / {todayWorkout.totalWeeks}
+              {`SEMANA ${todayWorkout.week} / ${todayWorkout.totalWeeks}`}
             </Text>
           </View>
           <Text style={[s.heroTitle, { color: theme.fg, fontFamily: FONTS.display }]}>{todayWorkout.name}</Text>
           <Text style={[s.heroStats, { color: theme.fg2, fontFamily: FONTS.medium }]}>
             <Text style={{ color: theme.fg, fontFamily: FONTS.semiBold }}>{todayWorkout.exercises.length} ejercicios</Text>
             {' · '}
-            <Text style={{ color: theme.fg, fontFamily: FONTS.semiBold }}>{todayWorkout.durationMin} min</Text>
+            <Text style={{ color: theme.fg, fontFamily: FONTS.semiBold }}>{todayWorkout.estimatedMinutes} min</Text>
             {' · '}
-            <Text style={{ color: theme.fg, fontFamily: FONTS.semiBold }}>{todayWorkout.kcal} kcal</Text>
+            <Text style={{ color: theme.fg, fontFamily: FONTS.semiBold }}>{todayWorkout.estimatedKcal} kcal</Text>
           </Text>
 
           <View style={[s.preview, { backgroundColor: 'rgba(0,0,0,0.3)' }]}>
             {todayWorkout.exercises.slice(0, 4).map((ex, i) => (
               <View key={i} style={s.previewRow}>
                 <Text style={[s.exNum, { color: theme.dim, fontFamily: FONTS.mono }]}>{String(i + 1).padStart(2, '0')}</Text>
-                <Text style={[s.exName, { color: theme.fg, fontFamily: FONTS.medium }]}>{ex.exercise.name}</Text>
-                <Text style={[s.exSets, { color: theme.muted, fontFamily: FONTS.mono }]}>{ex.sets}×{ex.reps}</Text>
-                <Text style={[s.exWt, { color: theme.accent, fontFamily: FONTS.mono }]}>{ex.weight}</Text>
+                <Text style={[s.exName, { color: theme.fg, fontFamily: FONTS.medium }]}>{ex.name}</Text>
+                <Text style={[s.exSets, { color: theme.muted, fontFamily: FONTS.mono }]}>{ex.sets}×{ex.repsMax}</Text>
+                <Text style={[s.exWt, { color: theme.accent, fontFamily: FONTS.mono }]}>
+                  {ex.weight > 0 ? `${ex.weight}kg` : ex.weightUnit}
+                </Text>
               </View>
             ))}
             <Text style={[s.moreTxt, { color: theme.dim, fontFamily: FONTS.mono }]}>
-              + {Math.max(0, todayWorkout.exercises.length - 4)} MÁS
+              {`+ ${Math.max(0, todayWorkout.exercises.length - 4)} MÁS`}
             </Text>
           </View>
 
-          <TouchableOpacity style={[s.startBtn, { backgroundColor: theme.accent }]} onPress={handleStart} activeOpacity={0.85}>
+          <TouchableOpacity
+            style={[s.startBtn, { backgroundColor: theme.accent }]}
+            onPress={() => navigation.navigate('ActiveWorkout')}
+            activeOpacity={0.85}
+          >
             <Svg width={18} height={18} viewBox="0 0 24 24" fill={theme.accentInk}>
               <Path d="M5 3l14 9-14 9V3z" fill={theme.accentInk}/>
             </Svg>
@@ -110,12 +109,30 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Metrics */}
+        {/* Metrics — use nutritionToday for calorie/protein/steps data */}
         <View style={s.metricsRow}>
           {[
-            { label: 'CALORÍAS', val: `${dayMetrics.caloriesConsumed}`, curr: dayMetrics.caloriesConsumed, goal: dayMetrics.caloriesGoal, unit: `/ ${dayMetrics.caloriesGoal}` },
-            { label: 'PROTEÍNA', val: `${dayMetrics.proteinG}g`, curr: dayMetrics.proteinG, goal: dayMetrics.proteinGoalG, unit: `/ ${dayMetrics.proteinGoalG}g` },
-            { label: 'PASOS', val: `${(dayMetrics.steps/1000).toFixed(1)}k`, curr: dayMetrics.steps, goal: dayMetrics.stepsGoal, unit: `/ ${dayMetrics.stepsGoal/1000}k` },
+            {
+              label: 'CALORÍAS',
+              val: `${nutritionToday.calories.current}`,
+              curr: nutritionToday.calories.current,
+              goal: nutritionToday.calories.target,
+              unit: `/ ${nutritionToday.calories.target}`,
+            },
+            {
+              label: 'PROTEÍNA',
+              val: `${nutritionToday.protein.current}g`,
+              curr: nutritionToday.protein.current,
+              goal: nutritionToday.protein.target,
+              unit: `/ ${nutritionToday.protein.target}g`,
+            },
+            {
+              label: 'PASOS',
+              val: `${(nutritionToday.steps / 1000).toFixed(1)}k`,
+              curr: nutritionToday.steps,
+              goal: 10000,
+              unit: '/ 10k',
+            },
           ].map((m, i) => (
             <View key={i} style={[s.metricCard, { backgroundColor: theme.surface, borderColor: theme.line }]}>
               <Text style={[s.eyebrow, { color: theme.muted, fontFamily: FONTS.mono }]}>{m.label}</Text>
@@ -131,9 +148,7 @@ export default function HomeScreen() {
           <View style={[s.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
             <View style={s.cardHead}>
               <Text style={[s.eyebrow, { color: theme.muted, fontFamily: FONTS.mono }]}>RACHA</Text>
-              <Svg width={16} height={16} viewBox="0 0 24 24" fill={theme.accent}>
-                <Path d="M12 2c0 4-4 5-4 9a4 4 0 008 0c0-4-4-5-4-9z" fill={theme.accent}/>
-              </Svg>
+              <Text style={{ fontSize: 16 }}>🔥</Text>
             </View>
             <Text style={[s.bigNum, { color: theme.fg, fontFamily: FONTS.display }]}>{dayMetrics.streakDays} días</Text>
             <View style={s.streakDots}>
@@ -145,12 +160,10 @@ export default function HomeScreen() {
           <View style={[s.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
             <View style={s.cardHead}>
               <Text style={[s.eyebrow, { color: theme.muted, fontFamily: FONTS.mono }]}>RECUPERACIÓN</Text>
-              <Svg width={16} height={16} viewBox="0 0 24 24" fill={theme.accent}>
-                <Path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" fill={theme.accent}/>
-              </Svg>
+              <Text style={{ fontSize: 16 }}>❤️</Text>
             </View>
             <Text style={[s.bigNum, { color: theme.fg, fontFamily: FONTS.display }]}>{dayMetrics.recoveryScore}%</Text>
-            <Text style={[s.recoveryLbl, { color: theme.fg2, fontFamily: FONTS.medium }]}>Listo para entrenar fuerte</Text>
+            <Text style={[s.recoveryLbl, { color: theme.fg2, fontFamily: FONTS.medium }]}>{dayMetrics.recoveryMessage}</Text>
           </View>
         </View>
 
@@ -160,25 +173,28 @@ export default function HomeScreen() {
             <Text style={[s.sectionTitle, { color: theme.fg, fontFamily: FONTS.display }]}>Comidas de hoy</Text>
             <Text style={[s.eyebrow, { color: theme.muted, fontFamily: FONTS.mono }]}>VER PLAN →</Text>
           </View>
-          {mealsToday.map((meal: Meal) => (
+          {nutritionToday.meals.map((meal) => (
             <View
               key={meal.id}
               style={[
                 s.mealRow,
                 { borderBottomColor: theme.line },
                 meal.status === 'done' && { opacity: 0.55 },
-                meal.status === 'next' && { borderWidth: 1, borderRadius: 10, borderColor: theme.accent, paddingHorizontal: 10, marginBottom: 2 },
+                meal.status === 'next' && {
+                  borderWidth: 1, borderRadius: 10,
+                  borderColor: theme.accent, paddingHorizontal: 10, marginBottom: 2,
+                },
               ]}
             >
               <Text style={[s.mealTime, { color: theme.muted, fontFamily: FONTS.mono }]}>{meal.time}</Text>
               <View style={{ flex: 1 }}>
-                <Text style={[s.mealType, { color: theme.fg, fontFamily: FONTS.semiBold }]}>{meal.type}</Text>
+                <Text style={[s.mealType, { color: theme.fg, fontFamily: FONTS.semiBold }]}>{meal.name}</Text>
                 <Text style={[s.mealDesc, { color: theme.muted, fontFamily: FONTS.medium }]}>{meal.description}</Text>
               </View>
-              <Text style={[s.mealKcal, { color: theme.muted, fontFamily: FONTS.mono }]}>{meal.kcal}</Text>
+              <Text style={[s.mealKcal, { color: theme.muted, fontFamily: FONTS.mono }]}>{meal.calories}</Text>
               <View style={s.checkWrap}>
                 {meal.status === 'done'
-                  ? <Svg width={14} height={14} viewBox="0 0 24 24" fill="none"><Path d="M20 6L9 17l-5-5" stroke={theme.positive} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round"/></Svg>
+                  ? <Text style={{ color: theme.positive, fontSize: 14 }}>✓</Text>
                   : <View style={[s.checkbox, { borderColor: meal.status === 'next' ? theme.accent : theme.muted }]} />}
               </View>
             </View>
