@@ -19,10 +19,11 @@ export function RankHubScreen({ navigation }: any) {
   const colors = useTheme();
   const { rankData } = useAppStore();
 
-  const currentTier = rankData?.currentTier ?? 'oro';
+  const currentTier = rankData?.tier ?? 'oro';
+  const division = rankData?.division ?? 'ORO III';
   const currentXp = rankData?.xp ?? 4820;
-  const tierXp = rankData?.xpToNext ?? 1200;
-  const earnedXp = rankData?.xpInTier ?? 820;
+  const earnedXp = rankData?.xpToNext ?? 820;
+  const tierXp = rankData?.xpTarget ?? 1200;
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
@@ -35,7 +36,7 @@ export function RankHubScreen({ navigation }: any) {
           }}
         >
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <Text style={[TYPOGRAPHY.eyebrow, { color: colors.muted }]}>RANGO ACTUAL · TEMPORADA 4</Text>
+            <Text style={[TYPOGRAPHY.eyebrow, { color: colors.muted }]}>RANGO ACTUAL {'·'} TEMPORADA 4</Text>
             <TouchableOpacity
               style={{
                 width: 32, height: 32, borderRadius: 99,
@@ -43,21 +44,21 @@ export function RankHubScreen({ navigation }: any) {
                 alignItems: 'center', justifyContent: 'center',
               }}
             >
-              <Text style={{ color: colors.fg }}>⋯</Text>
+              <Text style={{ color: colors.fg }}>{'⋯'}</Text>
             </TouchableOpacity>
           </View>
 
           <View style={{ alignItems: 'center', marginTop: 18 }}>
             <RankInsignia tier={currentTier} size={140} />
             <Text style={[TYPOGRAPHY.display, { fontSize: 38, marginTop: 14, color: '#E8B339', letterSpacing: -1 }]}>
-              ORO III
+              {division}
             </Text>
             <Text style={[TYPOGRAPHY.mono, { fontSize: 10, color: colors.fg2, marginTop: 4, letterSpacing: 1 }]}>
-              {currentXp.toLocaleString()} XP · TOP 18% MUNDIAL
+              {currentXp.toLocaleString()} XP {'·'} TOP 18% MUNDIAL
             </Text>
           </View>
 
-          {/* Progress to next sub */}
+          {/* Progress bar */}
           <View
             style={{
               marginTop: 22, padding: 14, borderRadius: 14,
@@ -67,7 +68,7 @@ export function RankHubScreen({ navigation }: any) {
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
               <Text style={[TYPOGRAPHY.eyebrow, { color: colors.muted }]}>PROGRESO A ORO II</Text>
               <Text style={[TYPOGRAPHY.mono, { fontSize: 10, color: colors.accent }]}>
-                {earnedXp} / {tierXp} XP
+                {earnedXp} {' / '} {tierXp} XP
               </Text>
             </View>
             <View style={{ height: 8, backgroundColor: colors.surface2, borderRadius: 99, overflow: 'hidden' }}>
@@ -83,7 +84,7 @@ export function RankHubScreen({ navigation }: any) {
 
         {/* XP sources */}
         <View style={{ paddingHorizontal: SPACING.md, paddingTop: SPACING.md }}>
-          <Text style={[TYPOGRAPHY.eyebrow, { marginBottom: 10, color: colors.muted }]}>¿CÓMO GANAS XP?</Text>
+          <Text style={[TYPOGRAPHY.eyebrow, { marginBottom: 10, color: colors.muted }]}>{'¿CÓMO GANAS XP?'}</Text>
           <View style={{ gap: 6 }}>
             {XP_SOURCES.map((s, i) => (
               <View
@@ -114,7 +115,7 @@ export function RankHubScreen({ navigation }: any) {
               alignItems: 'center', justifyContent: 'center', gap: 4,
             }}
           >
-            <Text style={{ fontSize: 18 }}>🏆</Text>
+            <Text style={{ fontSize: 18 }}>{'🏆'}</Text>
             <Text style={[TYPOGRAPHY.mono, { fontSize: 11, color: colors.accent }]}>VER LIGAS</Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -125,7 +126,7 @@ export function RankHubScreen({ navigation }: any) {
               alignItems: 'center', justifyContent: 'center', gap: 4,
             }}
           >
-            <Text style={{ fontSize: 18 }}>🤚</Text>
+            <Text style={{ fontSize: 18 }}>{'🤚'}</Text>
             <Text style={[TYPOGRAPHY.mono, { fontSize: 11, color: colors.accent }]}>VS AMIGOS</Text>
           </TouchableOpacity>
         </View>
